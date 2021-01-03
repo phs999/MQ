@@ -1,0 +1,14 @@
+spring:
+  activemq:
+    broker-url: tcp://localhost:61616
+    user: admin
+    password: admin
+    pool:
+      enabled: true
+      max-connections: 15
+      idle-timeout: 10s
+    packages:
+      trust-all: true
+    #启用topic支持
+  jms:
+    pub-sub-domain: true
