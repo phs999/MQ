@@ -1,16 +1,15 @@
-package phs.activemq.JMSCorrelationID;
+package phs.activemq.QueueRequestor;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
-import java.util.UUID;
 
 /**
- * 消息发送者
+ * 消息消费者
  * @author phs
  *
  */
-public class SenderQueue {
+public class ReceiverQueue {
 
 	public static void main(String[] args) throws Exception{
 		//1.获取连接工厂
@@ -26,36 +25,29 @@ public class SenderQueue {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		//4.找目的地，获取destination，消费端也会从这个目的地取消息
 		Queue queue = session.createQueue("user");
-		//Topic topic = session.createTopic("ff");
 
-		//5.消息生产者
-		MessageProducer producer = session.createProducer(queue);
-		//设置消息是否持久化 默认是持久化的
-		//producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-		Message textMessage = session.createTextMessage("hi");
-		String cid=UUID.randomUUID().toString();
-		textMessage.setJMSCorrelationID(cid);
-		textMessage.setStringProperty("type","C");
-
-
-		producer.send(textMessage);
-		System.out.println("P 消息发送完毕");
-
-		//等待消息回复
-		MessageConsumer consumer = session.createConsumer(queue,"JMSCorrelationID='"+cid+"' and type='P'");
+		//5.消息消费者
+		MessageConsumer consumer = session.createConsumer(queue);
+		//6.从目的地获取消息
 		consumer.setMessageListener(new MessageListener() {
-			@Override
+
 			public void onMessage(Message message) {
-				System.out.println("P 收到消息确认");
+				// TODO Auto-generated method stub
+				System.out.println("接到一条消息。。。。");
+				System.out.println("开始发送确认消息。。。");
+
 				try {
-					//7.关闭连接
-					connection.close();
+					Destination replyTo = message.getJMSReplyTo();
+					System.out.println("replyTo:" + replyTo);
+					MessageProducer producer = session.createProducer(replyTo);
+					producer.send(session.createTextMessage("xxxx..."));
+
 				} catch (JMSException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		});
-
 
 	}
 
