@@ -18,7 +18,8 @@ public class Consumer {
 
         //topic
         //selector 过滤器 *表示不过滤MessageSelector
-        consumer.subscribe("mytopic","*");
+        //tag selector 在一个group中的消费者，都不能随便变，要保持统一
+        consumer.subscribe("mytopic002","tag-B");
 
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override
@@ -33,6 +34,11 @@ public class Consumer {
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });
+
+        /*消息消费模式 默认为集群消费模式 CLUSTERING
+        消息消费模式由消费者来决定，可以由消费者设置MessageModel来决定消息模式。
+        consumer.setMessageModel(MessageModel.BROADCASTING);
+        consumer.setMessageModel(MessageModel.CLUSTERING);*/
 
         consumer.start();
     }
